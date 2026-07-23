@@ -106,7 +106,7 @@ export default function Home() {
       } else {
         setMessage({ type: "ok", text: data.message ?? "Готово" });
         setTimeout(() => {
-          window.location.href = data.donateUrl;
+          window.open(data.donateUrl, "_blank", "width=600,height=800");
         }, 1500);
       }
     } catch {

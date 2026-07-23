@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { payments } from "@/db/schema";
 import { normalizeSteamID } from "@/lib/steamid";
 
-const DA_URL = `https://www.donationalerts.com/r/${process.env.DONATIONALERTS_ALERT_NAME || "vanillaplusplas"}`;
+const DA_ALERT = process.env.DONATIONALERTS_ALERT_NAME || "vanillaplusplas";
 
 export async function POST(request: Request) {
   try {
@@ -43,7 +43,8 @@ export async function POST(request: Request) {
       })
       .returning();
 
-    const donateUrl = `${DA_URL}?message=PAY${payment.id} ${norm.steamId64}`;
+    const message = `PAY${payment.id} ${norm.steamId64}`;
+    const donateUrl = `https://www.donationalerts.com/widget/donate?alerts_name=${DA_ALERT}&amount=${Math.floor(amount)}&message=${encodeURIComponent(message)}&username=STEAM`;
 
     return NextResponse.json({
       ok: true,
