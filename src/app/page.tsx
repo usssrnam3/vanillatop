@@ -104,10 +104,9 @@ export default function Home() {
       if (!res.ok) {
         setMessage({ type: "err", text: data.error ?? "Ошибка" });
       } else {
-        setMessage({ type: "ok", text: `Заказ #${data.paymentId} создан. SteamID скопирован — вставь его в сообщение доната.` });
-        await navigator.clipboard.writeText(data.steamId64);
+        setMessage({ type: "ok", text: `Заказ #${data.paymentId} создан. Перенаправляем на DonationAlerts...` });
         setTimeout(() => {
-          window.open(data.donateUrl, "_blank");
+          window.location.href = data.donateUrl;
         }, 1500);
       }
     } catch {
@@ -242,16 +241,29 @@ export default function Home() {
             onSubmit={handleSubmit}
             className="w-full max-w-md rounded-2xl border border-neutral-800 bg-black/60 p-6 shadow-xl backdrop-blur-md"
           >
-            <label className="mb-1 block text-sm font-medium text-neutral-300">
-              Steam ID
-            </label>
-            <input
-              type="text"
-              value={steamId}
-              onChange={(e) => setSteamId(e.target.value)}
-              placeholder="STEAM_0:1:12345678"
-              className="mb-5 w-full rounded-lg border border-neutral-800 bg-neutral-950 px-4 py-3 text-white placeholder-neutral-600 outline-none transition focus:border-white/50 focus:ring-1 focus:ring-white/20"
-            />
+            <div className="relative mb-5">
+              <div className="mb-1 flex items-center gap-2">
+                <label className="block text-sm font-medium text-neutral-300">
+                  Steam ID
+                </label>
+                <div className="group relative">
+                  <span className="inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full border border-neutral-600 text-[10px] font-bold text-neutral-400 transition hover:border-neutral-400 hover:text-neutral-200">
+                    ?
+                  </span>
+                  <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-56 -translate-x-1/2 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-center text-xs text-neutral-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                    Воспользуйтесь кнопкой "Скопировать SteamID" в донат-меню в F4
+                    <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-neutral-700" />
+                  </div>
+                </div>
+              </div>
+              <input
+                type="text"
+                value={steamId}
+                onChange={(e) => setSteamId(e.target.value)}
+                placeholder="STEAM_0:1:12345678"
+                className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-4 py-3 text-white placeholder-neutral-600 outline-none transition focus:border-white/50 focus:ring-1 focus:ring-white/20"
+              />
+            </div>
 
             <label className="mb-1 block text-sm font-medium text-neutral-300">
               Сумма пополнения (₽)
