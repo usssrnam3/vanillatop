@@ -353,9 +353,12 @@ export default function Home() {
           </div>
         </div>
 
-        <p className="mt-6 text-center text-xs text-neutral-600">
-          © VANILLA+ · Garry&apos;s Mod Server
-        </p>
+        <div className="mt-6 flex items-center justify-center gap-4 text-center text-xs text-neutral-600">
+          <p>© VANILLA+ · Garry&apos;s Mod Server</p>
+          <a href="/oferta_691110484906.docx" target="_blank" className="underline transition hover:text-neutral-400">
+            Публичная оферта
+          </a>
+        </div>
       </div>
     </main>
   );
