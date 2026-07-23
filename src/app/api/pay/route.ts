@@ -43,8 +43,7 @@ export async function POST(request: Request) {
       })
       .returning();
 
-    const message = `PAY${payment.id} ${norm.steamId64}`;
-    const donateUrl = `https://www.donationalerts.com/widget/donate?alerts_name=${DA_ALERT}&amount=${Math.floor(amount)}&message=${encodeURIComponent(message)}&username=STEAM`;
+    const donateUrl = `https://www.donationalerts.com/r/${DA_ALERT}`;
 
     return NextResponse.json({
       ok: true,

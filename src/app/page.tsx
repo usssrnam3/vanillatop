@@ -104,9 +104,10 @@ export default function Home() {
       if (!res.ok) {
         setMessage({ type: "err", text: data.error ?? "Ошибка" });
       } else {
-        setMessage({ type: "ok", text: data.message ?? "Готово" });
+        setMessage({ type: "ok", text: `Заказ #${data.paymentId} создан. SteamID скопирован — вставь его в сообщение доната.` });
+        await navigator.clipboard.writeText(data.steamId64);
         setTimeout(() => {
-          window.open(data.donateUrl, "_blank", "width=600,height=800");
+          window.open(data.donateUrl, "_blank");
         }, 1500);
       }
     } catch {
