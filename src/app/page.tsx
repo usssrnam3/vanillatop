@@ -353,6 +353,27 @@ export default function Home() {
           </div>
         </div>
 
+        {/* ── Реквизиты ── */}
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          <div className="rounded-2xl border border-neutral-800 bg-black/60 p-6 shadow-xl backdrop-blur-md">
+            <h2 className="mb-4 text-lg font-bold">Реквизиты</h2>
+            <div className="space-y-2 text-sm text-neutral-400">
+              <p><span className="text-neutral-500">ИНН:</span> 691110484906</p>
+              <p><span className="text-neutral-500">Телефон:</span> +7 919 050-40-64</p>
+              <p><span className="text-neutral-500">E-mail:</span> narikbot5@gmail.com</p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-neutral-800 bg-black/60 p-6 shadow-xl backdrop-blur-md">
+            <h2 className="mb-4 text-lg font-bold">Условия возврата</h2>
+            <p className="text-sm text-neutral-400">
+              Покупатель вправе отказаться от покупки в течение 30 дней с момента оплаты.
+              Для возврата средств необходимо обратиться по e-mail или телефону, указанным в реквизитах.
+              Средства возвращаются за вычетом комиссии платёжных систем.
+            </p>
+          </div>
+        </div>
+
         <div className="mt-6 flex items-center justify-center gap-4 text-center text-xs text-neutral-600">
           <p>© VANILLA+ · Garry&apos;s Mod Server</p>
           <a href="/oferta_691110484906.docx" target="_blank" className="underline transition hover:text-neutral-400">
