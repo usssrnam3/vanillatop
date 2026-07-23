@@ -105,7 +105,6 @@ export default function Home() {
       if (!res.ok) {
         setMessage({ type: "err", text: data.error ?? "Ошибка" });
       } else {
-        await navigator.clipboard.writeText(data.steamId64);
         setPaymentData({ paymentId: data.paymentId, steamId64: data.steamId64, donateUrl: data.donateUrl });
       }
     } catch {
@@ -245,14 +244,19 @@ export default function Home() {
                   </svg>
                 </div>
                 <h3 className="text-lg font-bold text-white">Заказ #{paymentData.paymentId} создан</h3>
-                <p className="mt-1 text-sm text-neutral-400">Сумма и SteamID уже подставлены</p>
+                <p className="mt-1 text-sm text-neutral-400">Сейчас вы будете перенаправлены на DonationAlerts</p>
               </div>
 
-              <iframe
-                src={paymentData.donateUrl}
-                className="h-[500px] w-full rounded-lg border border-neutral-800"
-                frameBorder="0"
-              />
+              <div className="mb-4 flex items-center justify-center py-4">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-neutral-600 border-t-white" />
+              </div>
+
+              <button
+                onClick={() => window.location.href = paymentData.donateUrl}
+                className="w-full rounded-lg bg-white px-4 py-3 font-semibold text-black transition hover:bg-neutral-200"
+              >
+                Перейти к оплате
+              </button>
 
               <button
                 onClick={() => setPaymentData(null)}
