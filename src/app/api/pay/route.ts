@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       .returning();
 
     const message = encodeURIComponent(`PAY${payment.id} ${norm.steamId64}`);
-    const donateUrl = `https://www.donationalerts.com/widget/donate?alerts_name=${DA_ALERT}&amount=${Math.floor(amount)}&message=${message}&username=${norm.steamId64}`;
+    const donateUrl = `https://www.donationalerts.com/widget/donate?alerts_name=${DA_ALERT}&amount=${Math.floor(amount)}&message=${message}`;
 
     return NextResponse.json({
       ok: true,

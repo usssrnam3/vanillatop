@@ -81,6 +81,7 @@ export default function Home() {
   const [amount, setAmount] = useState("10");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [paymentData, setPaymentData] = useState<{ paymentId: number; steamId64: string; donateUrl: string } | null>(null);
   const [stats, setStats] = useState<ServerStats | null>(null);
 
   useEffect(() => {
@@ -104,10 +105,8 @@ export default function Home() {
       if (!res.ok) {
         setMessage({ type: "err", text: data.error ?? "Ошибка" });
       } else {
-        setMessage({ type: "ok", text: `Заказ #${data.paymentId} создан. Перенаправляем на DonationAlerts...` });
-        setTimeout(() => {
-          window.location.href = data.donateUrl;
-        }, 1500);
+        await navigator.clipboard.writeText(data.steamId64);
+        setPaymentData({ paymentId: data.paymentId, steamId64: data.steamId64, donateUrl: data.donateUrl });
       }
     } catch {
       setMessage({ type: "err", text: "Не удалось отправить запрос" });
@@ -237,68 +236,95 @@ export default function Home() {
             )}
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="w-full max-w-md rounded-2xl border border-neutral-800 bg-black/60 p-6 shadow-xl backdrop-blur-md"
-          >
-            <div className="relative mb-5">
-              <div className="mb-1 flex items-center gap-2">
-                <label className="block text-sm font-medium text-neutral-300">
-                  Steam ID
-                </label>
-                <div className="group relative">
-                  <span className="inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full border border-neutral-600 text-[10px] font-bold text-neutral-400 transition hover:border-neutral-400 hover:text-neutral-200">
-                    ?
-                  </span>
-                  <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-56 -translate-x-1/2 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-center text-xs text-neutral-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-                    Воспользуйтесь кнопкой "Скопировать SteamID" в донат-меню в F4
-                    <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-neutral-700" />
+          {paymentData ? (
+            <div className="w-full max-w-md rounded-2xl border border-neutral-800 bg-black/60 p-6 shadow-xl backdrop-blur-md">
+              <div className="mb-4 text-center">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full border border-green-500/30 bg-green-500/10 text-green-400">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-white">Заказ #{paymentData.paymentId} создан</h3>
+                <p className="mt-1 text-sm text-neutral-400">Сумма и SteamID уже подставлены</p>
+              </div>
+
+              <iframe
+                src={paymentData.donateUrl}
+                className="h-[500px] w-full rounded-lg border border-neutral-800"
+                frameBorder="0"
+              />
+
+              <button
+                onClick={() => setPaymentData(null)}
+                className="mt-2 w-full rounded-lg border border-neutral-800 px-4 py-3 text-sm text-neutral-400 transition hover:text-white"
+              >
+                Назад
+              </button>
+            </div>
+          ) : (
+            <form
+              onSubmit={handleSubmit}
+              className="w-full max-w-md rounded-2xl border border-neutral-800 bg-black/60 p-6 shadow-xl backdrop-blur-md"
+            >
+              <div className="relative mb-5">
+                <div className="mb-1 flex items-center gap-2">
+                  <label className="block text-sm font-medium text-neutral-300">
+                    Steam ID
+                  </label>
+                  <div className="group relative">
+                    <span className="inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full border border-neutral-600 text-[10px] font-bold text-neutral-400 transition hover:border-neutral-400 hover:text-neutral-200">
+                      ?
+                    </span>
+                    <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-56 -translate-x-1/2 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-center text-xs text-neutral-300 opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                      Воспользуйтесь кнопкой "Скопировать SteamID" в донат-меню в F4
+                      <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-neutral-700" />
+                    </div>
                   </div>
                 </div>
+                <input
+                  type="text"
+                  value={steamId}
+                  onChange={(e) => setSteamId(e.target.value)}
+                  placeholder="STEAM_0:1:12345678"
+                  className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-4 py-3 text-white placeholder-neutral-600 outline-none transition focus:border-white/50 focus:ring-1 focus:ring-white/20"
+                />
               </div>
+
+              <label className="mb-1 block text-sm font-medium text-neutral-300">
+                Сумма пополнения (₽)
+              </label>
               <input
-                type="text"
-                value={steamId}
-                onChange={(e) => setSteamId(e.target.value)}
-                placeholder="STEAM_0:1:12345678"
-                className="w-full rounded-lg border border-neutral-800 bg-neutral-950 px-4 py-3 text-white placeholder-neutral-600 outline-none transition focus:border-white/50 focus:ring-1 focus:ring-white/20"
+                type="number"
+                min={10}
+                step={1}
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="от 10 рублей"
+                className="mb-2 w-full rounded-lg border border-neutral-800 bg-neutral-950 px-4 py-3 text-white placeholder-neutral-600 outline-none transition focus:border-white/50 focus:ring-1 focus:ring-white/20"
               />
-            </div>
+              <p className="mb-5 text-xs text-neutral-600">Минимальная сумма — 10 рублей</p>
 
-            <label className="mb-1 block text-sm font-medium text-neutral-300">
-              Сумма пополнения (₽)
-            </label>
-            <input
-              type="number"
-              min={10}
-              step={1}
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="от 10 рублей"
-              className="mb-2 w-full rounded-lg border border-neutral-800 bg-neutral-950 px-4 py-3 text-white placeholder-neutral-600 outline-none transition focus:border-white/50 focus:ring-1 focus:ring-white/20"
-            />
-            <p className="mb-5 text-xs text-neutral-600">Минимальная сумма — 10 рублей</p>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-white px-4 py-3 font-semibold text-black transition hover:bg-neutral-200 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading ? "Обработка..." : "Оплатить"}
-            </button>
-
-            {message && (
-              <div
-                className={`mt-4 rounded-lg px-4 py-3 text-sm ${
-                  message.type === "ok"
-                    ? "border border-white/10 bg-white/5 text-white"
-                    : "border border-red-500/10 bg-red-500/10 text-red-400"
-                }`}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-lg bg-white px-4 py-3 font-semibold text-black transition hover:bg-neutral-200 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {message.text}
-              </div>
-            )}
-          </form>
+                {loading ? "Обработка..." : "Оплатить"}
+              </button>
+
+              {message && (
+                <div
+                  className={`mt-4 rounded-lg px-4 py-3 text-sm ${
+                    message.type === "ok"
+                      ? "border border-white/10 bg-white/5 text-white"
+                      : "border border-red-500/10 bg-red-500/10 text-red-400"
+                  }`}
+                >
+                  {message.text}
+                </div>
+              )}
+            </form>
+          )}
         </div>
 
         {/* ── Rules ── */}
