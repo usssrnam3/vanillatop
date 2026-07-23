@@ -105,6 +105,9 @@ export default function Home() {
         setMessage({ type: "err", text: data.error ?? "Ошибка" });
       } else {
         setMessage({ type: "ok", text: data.message ?? "Готово" });
+        setTimeout(() => {
+          window.location.href = data.donateUrl;
+        }, 1500);
       }
     } catch {
       setMessage({ type: "err", text: "Не удалось отправить запрос" });

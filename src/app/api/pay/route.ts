@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { payments } from "@/db/schema";
+import { normalizeSteamID } from "@/lib/steamid";
+
+const DA_URL = `https://www.donationalerts.com/r/${process.env.DONATIONALERTS_ALERT_NAME || "vanillaplusplas"}`;
 
 export async function POST(request: Request) {
   try {
@@ -15,6 +18,14 @@ export async function POST(request: Request) {
       );
     }
 
+    const norm = normalizeSteamID(steamId);
+    if (!norm) {
+      return NextResponse.json(
+        { error: "Неверный формат Steam ID. Используйте STEAM_0:X:XXXXX или SteamID64" },
+        { status: 400 }
+      );
+    }
+
     if (!Number.isFinite(amount) || amount < 10) {
       return NextResponse.json(
         { error: "Минимальная сумма пополнения — 10 рублей" },
@@ -25,16 +36,21 @@ export async function POST(request: Request) {
     const [payment] = await db
       .insert(payments)
       .values({
-        steamId,
+        steamId: norm.steamId,
+        steamId64: norm.steamId64,
         amount: Math.floor(amount),
         status: "pending",
       })
       .returning();
 
+    const donateUrl = `${DA_URL}?message=PAY${payment.id} ${norm.steamId64}`;
+
     return NextResponse.json({
       ok: true,
       paymentId: payment.id,
-      message: `Заказ на пополнение ${payment.amount} ₽ создан`,
+      steamId64: norm.steamId64,
+      donateUrl,
+      message: `Заказ #${payment.id} создан. Перенаправляем на DonationAlerts...`,
     });
   } catch {
     return NextResponse.json(
