@@ -83,11 +83,19 @@ export default function Home() {
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [paymentData, setPaymentData] = useState<{ paymentId: number; steamId64: string; donateUrl: string } | null>(null);
   const [stats, setStats] = useState<ServerStats | null>(null);
+  const [forbes, setForbes] = useState<{ topDonators: { steamId: string; steamId64: string | null; total: number; count: number }[]; recentDonations: { id: number; steamId: string; amount: number; createdAt: string | null }[] } | null>(null);
 
   useEffect(() => {
     fetch("https://api.gamemonitoring.ru/servers/12359817")
       .then((r) => r.json())
       .then((d) => setStats(d.response))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/forbes")
+      .then((r) => r.json())
+      .then((d) => setForbes(d))
       .catch(() => {});
   }, []);
 
@@ -330,6 +338,73 @@ export default function Home() {
             </form>
           )}
         </div>
+
+        {/* ── Forbes / Top Donators ── */}
+        {forbes && (
+          <div className="mb-8 rounded-2xl border border-neutral-800 bg-black/60 p-6 shadow-xl backdrop-blur-md">
+            <h2 className="mb-6 text-center text-xl font-bold">
+              Forbes <span className="text-neutral-500 text-sm font-normal">— топ донатеров</span>
+            </h2>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Top Donators */}
+              <div>
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-400">
+                  🏆 За всё время
+                </h3>
+                <div className="space-y-2">
+                  {forbes.topDonators.slice(0, 10).map((d, i) => (
+                    <div
+                      key={`${d.steamId}-${i}`}
+                      className="flex items-center justify-between rounded-lg border border-neutral-800 bg-neutral-900/40 px-4 py-2.5"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className={`shrink-0 w-6 text-center text-sm font-bold ${
+                          i === 0 ? "text-yellow-400" : i === 1 ? "text-neutral-300" : i === 2 ? "text-amber-600" : "text-neutral-500"
+                        }`}>
+                          {i + 1}
+                        </span>
+                        <span className="truncate text-sm text-white font-mono">{d.steamId}</span>
+                      </div>
+                      <span className="shrink-0 text-sm font-semibold text-green-400">
+                        {d.total.toLocaleString()} ₽
+                      </span>
+                    </div>
+                  ))}
+                  {forbes.topDonators.length === 0 && (
+                    <p className="text-sm text-neutral-500 text-center py-4">Пока нет донатеров</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Recent Donations */}
+              <div>
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-neutral-400">
+                  🔥 За последнюю неделю
+                </h3>
+                <div className="space-y-2">
+                  {forbes.recentDonations.slice(0, 15).map((d) => (
+                    <div
+                      key={d.id}
+                      className="flex items-center justify-between rounded-lg border border-neutral-800 bg-neutral-900/40 px-4 py-2.5"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="h-2 w-2 shrink-0 rounded-full bg-green-500/60" />
+                        <span className="truncate text-sm text-white font-mono">{d.steamId}</span>
+                      </div>
+                      <span className="shrink-0 text-sm font-semibold text-green-400">
+                        +{d.amount.toLocaleString()} ₽
+                      </span>
+                    </div>
+                  ))}
+                  {forbes.recentDonations.length === 0 && (
+                    <p className="text-sm text-neutral-500 text-center py-4">На этой неделе пока нет донатов</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Rules ── */}
         <div className="rounded-2xl border border-neutral-800 bg-black/60 p-6 shadow-xl backdrop-blur-md">
